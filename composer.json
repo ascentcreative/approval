@@ -13,7 +13,7 @@
   },
   "autoload": {
     "psr-4": {
-      "AscentCreative\\Sandbox\\": "src"
+      "AscentCreative\\Approval\\": "src"
     }
   },
   "extra": {
