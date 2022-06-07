@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
  * Allows a Model to be extended with functions to intercept the save of new data
  * and divert to a sandbox record where needed
  */
-trait Sandboxable {
+trait Approvable {
 
     public static function bootSandboxable() {
   
