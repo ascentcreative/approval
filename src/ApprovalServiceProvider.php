@@ -17,6 +17,15 @@ class ApprovalServiceProvider extends ServiceProvider
             __DIR__.'/../config/approval.php', 'approval'
         );
 
+
+        \Illuminate\Database\Schema\Blueprint::macro('approvals', function($table) {
+            $table->integer("is_approved");
+        });
+
+        \Illuminate\Database\Schema\Blueprint::macro('dropApprovals()', function($table) {
+            $table->dropColumn('is_approved');
+        });
+
     }
 
     public function boot() {
