@@ -2,7 +2,6 @@
 
 namespace AscentCreative\Approval\Traits;
 
-use AscentCreative\CMS\Traits\Extender;
 use AscentCreative\Approval\Models\ApprovalItem;
 
 use Illuminate\Http\Request;
@@ -36,13 +35,23 @@ trait Approvable {
 
 
         static::saving(function($model) {
-            $model->_ai = new ApprovalItem();
-            $model->_ai->fill([
-                'approvable_type' => get_class($model),
-                'approvable_id' => $model->id,
-                'author_id' => auth()->user()->id,
-                'payload' => $model,
-            ]);
+
+            if(request()->user()->can('createWithoutApproval', get_class($model))) {
+
+                $model->is_approved = 1;
+
+            } else {
+
+                $model->_ai = new ApprovalItem();
+                $model->_ai->fill([
+                    'approvable_type' => get_class($model),
+                    'approvable_id' => $model->id,
+                    'author_id' => auth()->user()->id,
+                    'payload' => $model,
+                ]);
+
+            }
+
         });
 
         // Need to act slightly differently based on if we're creating a new model, or updating an existing one
@@ -62,6 +71,9 @@ trait Approvable {
 
             // or, write in the bare minimum data (i.e. required cols only) to get the record into the database,
             // perhaps using dummy data. 
+
+            
+
             if($model->wasRecentlyCreated) {
                 if(!request()->user()->can('createWithoutApproval', get_class($model))) {
 
@@ -69,6 +81,7 @@ trait Approvable {
                     $model->_ai->fill([
                         'approvable_id' => $model->id,
                         'action' => 'create',
+                        
                     ]);
 
 
@@ -80,6 +93,11 @@ trait Approvable {
             }
 
            
+            // if the save is allowed, check if there's a sandbox_id, and mark it approved:
+                if(request()->approval_item_id) {
+                    ApprovalItem::find(request()->approval_item_id)->approve();
+                }
+    
 
         });
 
@@ -89,7 +107,7 @@ trait Approvable {
 
 
         static::updating(function($model) {
-            dump('Updating');
+            // dd('Updating');
             // dd($model);
             
             // is the user authorised to do this directly, or does it need to go to the approval_queue?
