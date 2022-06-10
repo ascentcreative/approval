@@ -1,9 +1,9 @@
 <?php
 
-namespace AscentCreative\Sandbox\Traits;
+namespace AscentCreative\Approval\Traits;
 
 use AscentCreative\CMS\Traits\Extender;
-use AscentCreative\Sandbox\Models\Sandbox;
+use AscentCreative\Approval\Models\ApprovalItem;
 
 use Illuminate\Http\Request;
 
@@ -14,52 +14,129 @@ use Illuminate\Http\Request;
  */
 trait Approvable {
 
-    public static function bootSandboxable() {
-  
-        static::saving(function($model) { 
+    public $_ai;
 
-            // Detect the logic for this model as to whether it needs to be diverted to the sandbox.
-            // Where should the logic reside? 
-            //   - In a model function?
-            //   - Extend the Policy?
-            //   - Use a new type of Policy (SandboxPolicy)?
+    public static function bootApprovable() {
 
+        // this should be in a scope class so that it allows other scopes to remove it
+        // (See how SoftDeleteScope works for more info)
+        static::addGlobalScope('approved', function($query) {
 
-            if(request()->user()->cannot('createWithoutSandbox', get_class($model))) {
+            // should we also include a field locally on the model which will protected against any
+            // accidental clearing of the approval item records? Probably best to, otherwise there's a risk of 
+            // unapproved records suddenly going live.
 
-                $sbx = new Sandbox();
-                $sbx = Sandbox::create([
-                    'sandboxable_type' => get_class($model),
-                    'sandboxable_id' => $model->id,
-                    'action' => $model->id ? 'edit' : 'create',
-                    'author_id' => auth()->user()->id,
-                   // 'payload' => request()->all(),
-                   'payload'=>$model
-                ]);
+            $query->where('is_approved', 1)->where('is_rejected', 0);
 
-
-                $model = $sbx;
-                // return $model;
-                // should this be detecting changed fields?
-                // or should we be logging that at the point of approval?
-                // Site should be able to show what values will change on an edit.
-
-                
-                // I think we should only store fields which changed at the time of edit.
-                // That way we can more easily merge them in with the state of the taregt record (i.e. if other edits have been made in the meantime)
-                // Note - there will need to be some way of detecting and resolving conflicts.
-
-                return false;
-
-            }
-
-            // if the save is allowed, check if there's a sandbox_id, and mark it approved:
-            if(request()->sandbox_id) {
-                Sandbox::find(request()->sandbox_id)->approve();
-            }
+            $query->whereDoesntHave('approval_items', function($q) {
+                $q->where('is_approved', 0)->where('action', 'create');
+            });
 
         });
+
+
+        static::saving(function($model) {
+            $model->_ai = new ApprovalItem();
+            $model->_ai->fill([
+                'approvable_type' => get_class($model),
+                'approvable_id' => $model->id,
+                'author_id' => auth()->user()->id,
+                'payload' => $model,
+            ]);
+        });
+
+        // Need to act slightly differently based on if we're creating a new model, or updating an existing one
+        static::saved(function($model) { 
+
+            // dd($model->wasRecentlyCreated); 
+
+            // The model row still needs to be created in the database, so we're firing this after the model is created.
+            // (we have edge cases which require it to be there, even as a placeholder, so it can be linked to some tentative relationships)
+
+            // However, we need to not write most relationship data to their tables, so we'll filter that out.
+
+            // only write the input values which are directly on the table. 
+
+            // trait (relationship) values should be sidelined and stored in JSON 
+            // so they don't create related models. These will be written formally when this record is approved.
+
+            // or, write in the bare minimum data (i.e. required cols only) to get the record into the database,
+            // perhaps using dummy data. 
+            if($model->wasRecentlyCreated) {
+                if(!request()->user()->can('createWithoutApproval', get_class($model))) {
+
+                    // $sbx = new ApprovalItem();
+                    $model->_ai->fill([
+                        'approvable_id' => $model->id,
+                        'action' => 'create',
+                    ]);
+
+
+                    $model->_ai->save();
+
+                    return false;
+
+                }
+            }
+
+           
+
+        });
+
+
+    
+
+
+
+        static::updating(function($model) {
+            dump('Updating');
+            // dd($model);
+            
+            // is the user authorised to do this directly, or does it need to go to the approval_queue?
+           if(!request()->user()->can('updateWithoutApproval', get_class($model))) {
+
+
+                // no?
+
+                // create incoming change record, copmaring the saved data to the incoming (and only list changes)
+                // return false; // bail on the save so the updates don't hit the database.
+
+            
+                
+
+            }
+                
+
+
+            
+
+
+        });
+
+
   
+    }
+
+
+
+    public function approval_items() {
+        return $this->morphMany(ApprovalItem::class, 'approvable');
+    }
+
+    public function scopeApprovalQueue($q) {
+
+        $q->withoutGlobalScope('approved');
+
+        $q->whereHas('approval_items', function($q) {
+            $q->where('is_approved', 0);
+        });
+
+    }
+
+    public function scopeWithUnapproved($query) {
+
+        $query->withoutGlobalScope('approved');
+
     }
   
 

@@ -18,12 +18,14 @@ class ApprovalServiceProvider extends ServiceProvider
         );
 
 
-        \Illuminate\Database\Schema\Blueprint::macro('approvals', function($table) {
-            $table->integer("is_approved");
+        \Illuminate\Database\Schema\Blueprint::macro('approvals', function() {
+            $this->boolean("is_approved")->default(0);
+            $this->boolean("is_rejected")->default(0);
         });
 
-        \Illuminate\Database\Schema\Blueprint::macro('dropApprovals()', function($table) {
-            $table->dropColumn('is_approved');
+        \Illuminate\Database\Schema\Blueprint::macro('dropApprovals', function() {
+            $this->dropColumn('is_approved');
+            $this->dropColumn('is_rejected');
         });
 
     }
@@ -31,7 +33,7 @@ class ApprovalServiceProvider extends ServiceProvider
     public function boot() {
         $this->bootComponents();
 
-        $this->loadViewsFrom(__DIR__.'/../resources/views', 'sandbox');
+        $this->loadViewsFrom(__DIR__.'/../resources/views', 'approval');
 
         $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
 
