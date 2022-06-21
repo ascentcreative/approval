@@ -36,11 +36,28 @@ class ApprovalItem extends Model {
 
     }
 
+    public function approvable() {
+        return $this->morphTo()->withUnapproved();
+    }
+
     public function approve() {
         $this->is_approved = 1;
         $this->approved_at = now();
         $this->approved_by = auth()->user()->id;
         $this->save();
+    }
+
+    public function reject($reason) {
+        $this->is_rejected = 1;
+        $this->rejected_at = now();
+        $this->rejected_by = auth()->user()->id;
+        $this->save();
+
+        // update the model too:
+        $model = $this->approvable; //->update(['is_rejected' => 1]);
+        $model->is_rejected = 1;
+        $model->save();
+        
     }
 
     public function scopeApprovalQueue($query, $class) {

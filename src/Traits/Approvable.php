@@ -36,20 +36,24 @@ trait Approvable {
 
         static::saving(function($model) {
 
-            if(request()->user()->can('createWithoutApproval', get_class($model))) {
+            if($model->is_rejected != 1) {
 
-                $model->is_approved = 1;
+                if(request()->user()->can('createWithoutApproval', get_class($model))) {
 
-            } else {
+                    $model->is_approved = 1;
 
-                $model->_ai = new ApprovalItem();
-                $model->_ai->fill([
-                    'approvable_type' => get_class($model),
-                    'approvable_id' => $model->id,
-                    'author_id' => auth()->user()->id,
-                    'payload' => $model,
-                ]);
+                } else {
 
+                    $model->_ai = new ApprovalItem();
+                    $model->_ai->fill([
+                        'approvable_type' => get_class($model),
+                        'approvable_id' => $model->id,
+                        'author_id' => auth()->user()->id,
+                        'payload' => $model,
+                    ]);
+
+                }
+                
             }
 
         });
@@ -94,9 +98,9 @@ trait Approvable {
 
            
             // if the save is allowed, check if there's a sandbox_id, and mark it approved:
-                if(request()->approval_item_id) {
-                    ApprovalItem::find(request()->approval_item_id)->approve();
-                }
+            if(request()->approval_item_id) {
+                 ApprovalItem::find(request()->approval_item_id)->approve();
+            }
     
 
         });
@@ -157,5 +161,12 @@ trait Approvable {
 
     }
   
+
+    public function reject() {
+
+        $this->is_rejected = 1;
+        $this->save();
+
+    }
 
 }

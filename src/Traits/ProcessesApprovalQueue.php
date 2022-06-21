@@ -5,6 +5,9 @@ namespace AscentCreative\Approval\Traits;
 use AscentCreative\Approval\Models\ApprovalItem;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+
+use Illuminate\Support\Str;
 
 use Illuminate\Support\Facades\Validator;
 
@@ -66,6 +69,47 @@ trait ProcessesApprovalQueue {
     }
 
 
+    public function confirmreject($id) {
+
+        $data = $this->prepareViewData();
+        
+        if(isset($this->approvalModelName)) {
+            $data['modelName'] = $this->approvalModelName;
+        }
+
+        return view('approval::modal.reject', $data);
+
+    }
+
+    public function reject(Request $request, $id) {
+
+        Validator::make($request->all(), 
+                ['reject_reason'=>'required'],
+                ['reject_reason.required' => 'Please give your reasons for rejecting this item']
+                )->validate();
+
+        // $qry = $this->prepareModelQuery();
+        // $model = $qry->approvalQueue()->find($id);
+
+        // dump($id);
+
+        $ai = ApprovalItem::find($id);
+        $ai->reject($request->reject_reason);
+        // $model->reject();
+
+
+        return new JsonResponse(['hard'=>true, 'url'=>session('last_index')], 302);
+
+        // dd($request->all());
+
+        // return redirect()->to(session('last_index'));
+
+        // return 
+
+    }
+
+
+
     /**
      * 
      * Lists all the sandboxes linked to the model class
@@ -78,13 +122,20 @@ trait ProcessesApprovalQueue {
 
         // $items = $cls::approvalQueue()->get();
 
+        $data = $this->prepareViewData();
+        
+        if(isset($this->approvalModelName)) {
+            $data['modelName'] = $this->approvalModelName;
+            $data['modelPlural'] = Str::pluralStudly($this->approvalModelName);
+        }
+
         $items = ApprovalItem::approvalQueue($cls)->paginate(25); 
 
         $columns = $this->getApprovalColumns();
 
         session(['last_index'=> url()->full()]);
 
-        return view($this::$bladePath . '.approval', $this->prepareViewData())->with('models', $items)->with('columns', $columns);
+        return view($this::$bladePath . '.approval', $data)->with('models', $items)->with('columns', $columns);
 
     }
   
