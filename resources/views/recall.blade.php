@@ -3,11 +3,13 @@
 {{-- Override the title --}}
 @section('screentitle')
    
-    @if (isset($model->id) && $model->id)
+    {{-- @if (isset($model->id) && $model->id)
         Review Edited {{$modelName}}
     @else
         Review New {{$modelName}}
-    @endif
+    @endif --}}
+
+    Review {{$modelName}}
 
 @endsection
 
@@ -23,6 +25,23 @@
 
         @show 
     </nav>
+@endsection
+
+
+@section('screen-start')
+        
+    {{-- OPEN FORM TAG --}}
+    @if (isset($model->id) && $model->id)
+        <form action="{{ action([controller(), 'approve'], ['approval_item' => $model->id]) }}" id="frm_edit" method="POST" enctype="application/x-www-form-urlencoded" autocomplete="off">
+         @method('PUT')
+    {{-- @else
+        <form action="{{ action([controller(), 'store']) }}" method="POST" id="frm_edit" enctype="application/x-www-form-urlencoded" autocomplete="off"> --}}
+    @endif
+
+    @csrf
+    {{-- Prevent enter submitting the form --}}
+    <input type="submit" disabled style="display: none"/> 
+
 @endsection
 
 
