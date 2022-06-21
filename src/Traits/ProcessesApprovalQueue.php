@@ -14,19 +14,28 @@ use Illuminate\Support\Facades\Validator;
  */
 trait ProcessesApprovalQueue {
 
+
     // opens a sandboxed record
     public function approval(ApprovalItem $approval_item) {
 
         $cls = ($this::$modelClass);
         $model = $cls::approvalQueue()->find($approval_item->approvable_id);
 
+        $data = $this->prepareViewData();
+        
+        $data['extend'] = $this::$bladePath . '.edit';
+        if(isset($this->approvalModelName)) {
+            $data['modelName'] = $this->approvalModelName;
+        }
+        
+        
         if(session()->get('_old_input') === null) {
         // flash the payload to the session for this request only (now())
             request()->session()->now('_old_input', $approval_item->payload);
         } 
         session()->now('approval_item_id', $approval_item->id);
    
-        return view('approval::recall', $this->prepareViewData())->with('extend', $this::$bladePath . '.edit')->withModel($model);
+        return view('approval::recall', $data)->withModel($model);
 
     }
 
