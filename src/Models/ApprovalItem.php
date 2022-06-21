@@ -51,6 +51,7 @@ class ApprovalItem extends Model {
         $this->is_rejected = 1;
         $this->rejected_at = now();
         $this->rejected_by = auth()->user()->id;
+        $this->reject_reason = $reason;
         $this->save();
 
         // update the model too:
