@@ -13,6 +13,15 @@ use Illuminate\Http\Request;
  */
 trait Approvable {
 
+    /**
+     * Indicates if the model was approved/rejected during the current request lifecycle.
+     *
+     * @var bool
+     */
+    public $wasRecentlyApproved = false;
+    public $wasRecentlyRejected = false;
+
+
     public $_ai;
 
     public static function bootApprovable() {
@@ -40,7 +49,10 @@ trait Approvable {
 
                 if(request()->user()->can('createWithoutApproval', get_class($model))) {
 
-                    $model->is_approved = 1;
+                    if ($model->is_approved == 0) {
+                        $model->is_approved = 1;
+                        $model->wasRecentlyApproved = true;
+                    }
 
                 } else {
 
@@ -166,6 +178,8 @@ trait Approvable {
 
         $this->is_rejected = 1;
         $this->save();
+
+        $this->wasRecentlyRejected = true;
 
     }
 
