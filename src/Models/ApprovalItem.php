@@ -5,6 +5,7 @@ namespace AscentCreative\Approval\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use AscentCreative\Approval\Events\PreItemApproval;
 use AscentCreative\Approval\Events\ItemApproved;
 use AscentCreative\Approval\Events\ItemRejected;
 // use AscentCreative\Approval\Events\UpdatedSandbox;
@@ -42,6 +43,9 @@ class ApprovalItem extends Model {
     }
 
     public function approve() {
+
+        PreItemApproval::dispatch($this);
+
         $this->is_approved = 1;
         $this->approved_at = now();
         $this->approved_by = auth()->user()->id;
