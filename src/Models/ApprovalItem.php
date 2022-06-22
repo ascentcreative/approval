@@ -5,8 +5,9 @@ namespace AscentCreative\Approval\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-use AscentCreative\Sandbox\Events\NewSandbox;
-use AscentCreative\Sandbox\Events\UpdatedSandbox;
+use AscentCreative\Approval\Events\ItemApproved;
+use AscentCreative\Approval\Events\ItemRejected;
+// use AscentCreative\Approval\Events\UpdatedSandbox;
 
 use Spatie\Activitylog\Traits\LogsActivity;
 
@@ -45,6 +46,8 @@ class ApprovalItem extends Model {
         $this->approved_at = now();
         $this->approved_by = auth()->user()->id;
         $this->save();
+
+        ItemApproved::dispatch($this);
     }
 
     public function reject($reason) {
@@ -58,6 +61,8 @@ class ApprovalItem extends Model {
         $model = $this->approvable; //->update(['is_rejected' => 1]);
         $model->is_rejected = 1;
         $model->save();
+
+        ItemRejected::dispatch($this);
         
     }
 
