@@ -38,6 +38,10 @@ class ApprovalItem extends Model {
 
     }
 
+    public function author() {
+        return $this->belongsTo(\App\Models\User::class, 'author_id');
+    }
+
     public function approvable() {
         return $this->morphTo()->withUnapproved();
     }
