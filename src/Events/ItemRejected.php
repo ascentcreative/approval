@@ -20,6 +20,7 @@ class ItemRejected
 
     public $item = null;
     public $user = null;
+    public $ip = null;
 
 
     /**
@@ -27,7 +28,7 @@ class ItemRejected
      *
      * @return void
      */
-    public function __construct(ApprovalItem $item, User $user=null)
+    public function __construct(ApprovalItem $item, User $user=null, $ip=null)
     {
         $this->item = $item;
 
@@ -36,6 +37,11 @@ class ItemRejected
         }
 
         $this->user = $user;
+
+        if(is_null($ip)) {
+            $ip = $_SERVER['REMOTE_ADDR'];
+        }
+        $this->ip = $ip;
     }
 
     /**
