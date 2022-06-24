@@ -10,6 +10,8 @@ use AscentCreative\Approval\Events\ItemApproved;
 use AscentCreative\Approval\Events\ItemRejected;
 // use AscentCreative\Approval\Events\UpdatedSandbox;
 
+use Illuminate\Support\Facades\DB;
+
 use Spatie\Activitylog\Traits\LogsActivity;
 
 class ApprovalItem extends Model {
@@ -48,14 +50,20 @@ class ApprovalItem extends Model {
 
     public function approve() {
 
-        PreItemApproval::dispatch($this);
+        DB::transaction( function() {
 
-        $this->is_approved = 1;
-        $this->approved_at = now();
-        $this->approved_by = auth()->user()->id;
-        $this->save();
+            PreItemApproval::dispatch($this);
 
-        ItemApproved::dispatch($this);
+            $this->is_approved = 1;
+            $this->approved_at = now();
+            $this->approved_by = auth()->user()->id;
+            $this->save();
+    
+            ItemApproved::dispatch($this);
+
+        });
+
+      
     }
 
     public function reject($reason) {
