@@ -8,6 +8,8 @@ use Illuminate\Routing\Router;
 
 use Illuminate\Support\Facades\Route;
 
+use Illuminate\Support\Facades\Schema;
+
 
 class ApprovalServiceProvider extends ServiceProvider
 {
@@ -21,13 +23,21 @@ class ApprovalServiceProvider extends ServiceProvider
 
 
         \Illuminate\Database\Schema\Blueprint::macro('approvals', function() {
-            $this->boolean("is_approved")->default(0);
-            $this->boolean("is_rejected")->default(0);
+            if(!Schema::hasColumn($this->table, 'is_approved')) {
+                $this->boolean("is_approved")->default(0);
+            }
+            if(!Schema::hasColumn($this->table, 'is_rejected')) {
+                $this->boolean("is_rejected")->default(0);
+            }
         });
 
         \Illuminate\Database\Schema\Blueprint::macro('dropApprovals', function() {
-            $this->dropColumn('is_approved');
-            $this->dropColumn('is_rejected');
+            if(Schema::hasColumn($this->table,'is_approved')) {
+                $this->dropColumn('is_approved');
+            }
+            if(Schema::hasColumn($this->table,'is_rejected')) {
+                $this->dropColumn('is_rejected');
+            }
         });
 
         \Illuminate\Support\Facades\Route::macro('approval', function($segment, $controller) {
