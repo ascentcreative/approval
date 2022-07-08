@@ -31,12 +31,16 @@ trait ProcessesApprovalQueue {
             $data['modelName'] = $this->approvalModelName;
         }
         
+        $payload =  $approval_item->payload;
+        $payload['approval_item_id'] = $approval_item->id;
         
         if(session()->get('_old_input') === null) {
-        // flash the payload to the session for this request only (now())
-            request()->session()->now('_old_input', $approval_item->payload);
+            // flash the payload to the session for this request only (now())
+            request()->session()->now('_old_input', $payload);
         } 
-        session()->now('approval_item_id', $approval_item->id);
+        // session()->now('approval_item_id', $approval_item->id);
+
+        session()->now('approval_item', $approval_item);
    
         return view('approval::recall', $data)->withModel($model);
 
