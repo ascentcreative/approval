@@ -25,8 +25,7 @@ trait ProcessesApprovalQueue {
         $model = $cls::approvalQueue()->find($approval_item->approvable_id);
 
         $data = $this->prepareViewData();
-        
-        $data['extend'] = $this::$bladePath . '.edit';
+
         if(isset($this->approvalModelName)) {
             $data['modelName'] = $this->approvalModelName;
         }
@@ -38,11 +37,31 @@ trait ProcessesApprovalQueue {
             // flash the payload to the session for this request only (now())
             request()->session()->now('_old_input', $payload);
         } 
-        // session()->now('approval_item_id', $approval_item->id);
-
         session()->now('approval_item', $approval_item);
+        
+        $blade = $this::$bladePath . '.edit';
+
+        if ($this::$formClass) {
+
+            $form = $this->getForm();
+            $form->action(action([controller(), 'approve'], ['approval_item' => $model->id]))->method("PUT");
+            $form->children([
+                \AscentCreative\Forms\Fields\Input::make('approval_item_id', '', 'hidden'),
+            ])->populate($model);
+            $data['form'] = $form;
+
+            return view('approval::recall.builder', $data)->withModel($model);
+        } elseif(view()->exists($blade)) {
+
+            $data['extend'] = $blade;
+            return view('approval::recall', $data)->withModel($model);
+
+        }
+
+       
    
-        return view('approval::recall', $data)->withModel($model);
+        // 
+       
 
     }
 
