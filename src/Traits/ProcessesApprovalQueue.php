@@ -71,10 +71,14 @@ trait ProcessesApprovalQueue {
         $qry = $this->prepareModelQuery();
         $model = $qry->approvalQueue()->find($id);
 
-        Validator::make($request->all(), 
+        if($form = $this->getForm()) {
+            $form->validate($request->all());
+        } else {
+            Validator::make($request->all(), 
                     $this->rules($request, $model),
                     $this->messages($request, $model)
                     )->validate();
+        }
 
 
         // look out for arrays which should be JSON
