@@ -13,6 +13,7 @@ use AscentCreative\Approval\Events\ItemRejected;
 use Illuminate\Support\Facades\DB;
 
 use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class ApprovalItem extends Model {
 
@@ -25,6 +26,12 @@ class ApprovalItem extends Model {
     public $casts = [
         'payload' => 'array',
     ];
+
+
+    public function getActivitylogOptions(): LogOptions {
+        return LogOptions::defaults();
+    }
+
 
     public static function booted() {
 
