@@ -28,6 +28,22 @@ class ApprovalItem extends Model {
     ];
 
 
+    public function __get($key) {
+        
+        if($val = parent::__get($key)) {
+            return $val;
+        } 
+
+        if(isset($this->payload[$key])) {
+            return $this->payload[$key];
+        }
+
+        if($val = $this->approvable->$key) {
+            return $val;
+        }
+
+    }
+
     public function getActivitylogOptions(): LogOptions {
         return LogOptions::defaults();
     }
@@ -55,9 +71,25 @@ class ApprovalItem extends Model {
         return $this->morphTo()->withUnapproved();
     }
 
-    public function approve() {
 
-        DB::transaction( function() {
+
+    /** 
+     * Approve this item
+     * @param $data = the data to stamp into the model
+     * If null, uses the data stored in the payload, but this parameter allows that 
+     * to have been overwritten by the approver in a UI if needed. 
+     * Making it optional means that the approval can fire just from non-UI code (if needed...)
+     */
+    public function approve($data=null) {
+
+        /**
+         * TODO - for edits:
+         *  - do we need a warning if the target model has been changed since the edit request was created?
+         *  - can we use the activity log to check if the edited fields were changed? 
+         *  - Or is it enough to show the new value vs the current value?
+         */
+
+        DB::transaction( function() use ($data) {
 
             PreItemApproval::dispatch($this);
 
@@ -66,6 +98,19 @@ class ApprovalItem extends Model {
             $this->approved_by = auth()->user()->id;
             $this->save();
     
+            // insert the payload data into the model
+            // - for a create, this will populate everything
+            // - for an edit, we should have only stored the changed fields.
+            if(is_null($data)) {
+                $data = $this->payload;
+            }
+            $model = $this->approvable;
+            $model->fill($data);
+            if($this->action == 'create') {
+                $model->wasRecentlyApproved = true;
+            }
+            $model->save();
+
             ItemApproved::dispatch($this);
 
         });
@@ -74,6 +119,7 @@ class ApprovalItem extends Model {
     }
 
     public function reject($reason) {
+
         $this->is_rejected = 1;
         $this->rejected_at = now();
         $this->rejected_by = auth()->user()->id;
@@ -82,7 +128,9 @@ class ApprovalItem extends Model {
 
         // update the model too:
         $model = $this->approvable; //->update(['is_rejected' => 1]);
-        $model->is_rejected = 1;
+        if($this->action == 'create') {
+            $model->is_rejected = 1;
+        }
         $model->save();
 
         ItemRejected::dispatch($this);

@@ -30,7 +30,7 @@
 
 
 @section('screen-start')
-        
+
     {{-- OPEN FORM TAG --}}
     @if (isset($model->id) && $model->id)
         <form action="{{ action([controller(), 'approve'], ['approval_item' => $model->id]) }}" id="frm_edit" method="POST" enctype="application/x-www-form-urlencoded" autocomplete="off">

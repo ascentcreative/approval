@@ -20,5 +20,38 @@
             <A href="{{ session('last_index') }}" class="btn btn-primary bi-x-circle-fill">{{-- Close {{$modelName}} --}} Exit Without Saving</A>
 
         @show 
-    </nav>
+    </nav>   
 @endsection
+
+
+@section('screen')
+
+    @if($approval_item->action == 'edit')
+    <div class="alert border rounded alert-warning">
+        Changes have been made in the following fields: 
+        @foreach(array_keys(session()->get('approval_item')->payload) as $key)
+            {{ $form->getElement($key)->label }},
+        @endforeach
+    </div>
+    @endif
+
+    @parent
+
+@endsection
+
+
+@if($approval_item->action == 'edit')
+    @push('scripts')
+        <script>
+
+            let keys =  {!! json_encode(array_keys(session()->get('approval_item')->payload)) !!};
+        
+            keys.forEach(key => {
+                // alert('#' + key + "-wrapper");
+                $('#' + key + "-wrapper").addClass('has-changes'); 
+            });
+
+
+        </script>
+    @endpush
+@endif

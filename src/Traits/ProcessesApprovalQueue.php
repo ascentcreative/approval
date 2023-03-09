@@ -22,16 +22,36 @@ trait ProcessesApprovalQueue {
     public function approval(ApprovalItem $approval_item) {
 
         $cls = ($this::$modelClass);
-        $model = $cls::approvalQueue()->find($approval_item->approvable_id);
+        //$model = $cls::approvalQueue()->find($approval_item->approvable_id);
+        $model = $approval_item->approvable;
+
 
         $data = $this->prepareViewData();
 
-        if(isset($this->approvalModelName)) {
-            $data['modelName'] = $this->approvalModelName;
+        if($approval_item->action == 'create') {
+            if(isset($this->approvalModelName)) {
+                $data['modelName'] = $this->approvalModelName;
+            }
+        } else {
+            $data['modelName'] = 'Changes';
         }
+
+
+        $data['approval_item'] = $approval_item;
+        
         
         $payload =  $approval_item->payload;
         $payload['approval_item_id'] = $approval_item->id;
+
+        // $model->fill($payload);
+
+        // dd($model);
+
+        // $payload = $model->attributes;
+        $payload['approval_item_id'] = $approval_item->id;
+       
+
+        // dd($payload);
         
         if(session()->get('_old_input') === null) {
             // flash the payload to the session for this request only (now())
@@ -71,6 +91,7 @@ trait ProcessesApprovalQueue {
         $qry = $this->prepareModelQuery();
         $model = $qry->approvalQueue()->find($id);
 
+        // Ensure the data has been validated
         if($form = $this->getForm()) {
             $form->validate($request->all());
         } else {
@@ -81,16 +102,8 @@ trait ProcessesApprovalQueue {
         }
 
 
-        // look out for arrays which should be JSON
-        // foreach($request->all() as $key=>$tmp) {
-        //     if (is_array($request->$key) && substr($key, 0, 1) != "_") {
-        //         $request->merge([$key => json_encode($request->$key)]);
-        //     }
-        // }
-
-        // aaargh - this breaks everywhere that a legitimate array is passed in.
-        
-        $this->commitModel($request, $model);
+        // All ok - approve the item
+        ApprovalItem::find(request()->approval_item_id)->approve($request->all());
         return redirect()->to($request->_postsave);
 
     }
