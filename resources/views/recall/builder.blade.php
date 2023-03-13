@@ -48,7 +48,9 @@
         
             keys.forEach(key => {
                 // alert('#' + key + "-wrapper");
-                $('#' + key + "-wrapper").addClass('has-changes'); 
+                $('#' + key + "-wrapper")
+                    .addClass('has-changes').css('position', 'relative')
+                    .append('<a href="/approval/compare/{{ $approval_item->id }}/' + key + '" style="position: absolute; top: -5px; left: 5px;" class="modal-link badge badge-warning">Compare changes</a>'); 
             });
 
 
