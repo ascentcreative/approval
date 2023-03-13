@@ -47,7 +47,9 @@ Route::middleware('web')->group( function() {
         $incString = '';
         foreach($incoming as $inc) {
             $ary = [];
-            $ary[] = $inc->lyricsection->title;
+            if($inc->lyricsection) {
+                $ary[] = $inc->lyricsection->title;
+            }
             $ary[] = $inc->lyrics;
             $incString .= join("\n", array_filter($ary)) . "\n\n";
         }
@@ -56,7 +58,9 @@ Route::middleware('web')->group( function() {
         $stString = '';
         foreach($stored as $inc) {
             $ary = [];
-            $ary[] = $inc->lyricsection->title;
+            if($inc->lyricsection) {
+                $ary[] = $inc->lyricsection->title;
+            }
             $ary[] = $inc->lyrics;
             $stString .= join("\n", array_filter($ary)) . "\n\n";
         }
