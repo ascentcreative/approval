@@ -1,10 +1,14 @@
 <x-cms-modal modalid="ajaxModal">
 
-   
-
     {{-- {!! \ViKon\Diff\Diff::compare(json_encode($approval_item->$field), $approvable->$field)->toHtml() !!} --}}
 
     {!! \Mistralys\Diff\Diff::createStyler()->getStyleTag(); !!}
+    <table class="text-diff-container">
+        <thead>
+            <td><strong>Stored Value</strong></td>
+            <td><strong>Incoming Value</strong></td>
+        </thead>
+    </table>
     {!! \Mistralys\Diff\Diff::compareStrings($stored ?? '', $incoming ?? '')->toHtmlTable() !!}
 
     <style>
@@ -15,6 +19,7 @@
         .text-diff-container td {
             /* padding: 20px; */
             width: 50%;
+            background: white;
         }
     </style>
 
