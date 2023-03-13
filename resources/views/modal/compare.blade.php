@@ -4,9 +4,9 @@
     
         $opcodes = \AscentCreative\Approval\FineDiff\FineDiff::getDiffOpcodes($stored, $incoming); // /, default granularity is set to character */);
 
+        $diff = \AscentCreative\Approval\FineDiff\FineDiff::renderDiffToHTMLFromOpcodes($stored, $opcodes);
+
     @endphp
-
-
 
     <table class="table">
 
@@ -19,10 +19,18 @@
         <tbody>
             <tr>
                 <td>
-                    <div style="white-space: pre-wrap" class="diff-stored">{!! \AscentCreative\Approval\FineDiff\FineDiff::renderDiffToHTMLFromOpcodes($stored, $opcodes) !!}</div>
+                    @if($stored != '')
+                        <div style="white-space: pre-wrap" class="diff-stored">{!! $diff !!}</div>
+                    @else 
+                        <span class="text-muted">[No Value]</span>
+                    @endif
                 </td>
                 <td>
-                    <div style="white-space: pre-wrap" class="diff-incoming">{!! \AscentCreative\Approval\FineDiff\FineDiff::renderDiffToHTMLFromOpcodes($stored, $opcodes) !!}</div>
+                    @if($incoming != '')
+                        <div style="white-space: pre-wrap" class="diff-incoming">{!! $diff !!}</div>
+                    @else 
+                        <span class="text-muted">[No Value]</span>
+                    @endif
                 </td>
             </tr>
         </tbody>
