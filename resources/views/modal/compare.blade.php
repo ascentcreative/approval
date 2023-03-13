@@ -5,7 +5,7 @@
     {{-- {!! \ViKon\Diff\Diff::compare(json_encode($approval_item->$field), $approvable->$field)->toHtml() !!} --}}
 
     {!! \Mistralys\Diff\Diff::createStyler()->getStyleTag(); !!}
-    {!! \Mistralys\Diff\Diff::compareStrings($stored, $incoming)->toHtmlTable() !!}
+    {!! \Mistralys\Diff\Diff::compareStrings($stored ?? '', $incoming ?? '')->toHtmlTable() !!}
 
     <style>
         .text-diff-container {
