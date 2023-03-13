@@ -169,7 +169,7 @@ trait ProcessesApprovalQueue {
             $data['modelPlural'] = Str::pluralStudly($this->approvalModelName);
         }
 
-        $items = ApprovalItem::approvalQueue($cls)->paginate(25); 
+        $items = ApprovalItem::approvalQueue($cls)->orderBy('created_at')->paginate(25); 
 
         $columns = $this->getApprovalColumns();
 
