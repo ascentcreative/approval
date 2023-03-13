@@ -1,27 +1,72 @@
-<x-cms-modal modalid="ajaxModal">
+<x-cms-modal modalid="ajaxModal" :showHeader="false" :showFooter="true">
 
-    {{-- {!! \ViKon\Diff\Diff::compare(json_encode($approval_item->$field), $approvable->$field)->toHtml() !!} --}}
+    @php
+    
+        $opcodes = \AscentCreative\Approval\FineDiff\FineDiff::getDiffOpcodes($stored, $incoming); // /, default granularity is set to character */);
 
-    {!! \Mistralys\Diff\Diff::createStyler()->getStyleTag(); !!}
-    <table class="text-diff-container">
+    @endphp
+
+
+
+    <table class="table">
+
         <thead>
-            <td><strong>Stored Value</strong></td>
-            <td><strong>Incoming Value</strong></td>
+            <tr>
+                <th width="50%">Stored</th>
+                <th width="50%">Incoming</th>
+            </tr>
         </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <div style="white-space: pre-wrap" class="diff-stored">{!! \AscentCreative\Approval\FineDiff\FineDiff::renderDiffToHTMLFromOpcodes($stored, $opcodes) !!}</div>
+                </td>
+                <td>
+                    <div style="white-space: pre-wrap" class="diff-incoming">{!! \AscentCreative\Approval\FineDiff\FineDiff::renderDiffToHTMLFromOpcodes($stored, $opcodes) !!}</div>
+                </td>
+            </tr>
+        </tbody>
     </table>
-    {!! \Mistralys\Diff\Diff::compareStrings($stored ?? '', $incoming ?? '')->toHtmlTable() !!}
 
     <style>
-        .text-diff-container {
-            width: 100%;
+
+        .diff-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
         }
 
-        .text-diff-container td {
-            /* padding: 20px; */
-            width: 50%;
-            background: white;
+        .diff-stored INS {
+            display: none;
         }
+
+        .diff-incoming DEL {
+            display: none;
+        }
+
+
+         DEL{
+            color:#979797;
+            background:#ffe1e1;
+            border-radius:2px;
+            display:inline-block;
+            /* padding:1px 4px; */
+        }
+
+        INS{
+            color:#1f361f;
+            background:#d0ffd0;
+            border-radius:2px;
+            display:inline-block;
+            /* padding:1px 4px; */
+        }
+
+       
     </style>
+
+    <x-slot name="footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+    </x-slot>
 
 </x-cms-modal>
 

@@ -3,6 +3,8 @@
 use AscentCreative\Approval\Models\ApprovalItem;
 use AscentCreative\Approval\Events\ItemApproved;
 
+use AscentCreative\Approval\FineDiff\FineDiff;
+
 Route::middleware('web')->group( function() {
 
     // Route::get('/test-approval-event/{approval_item}', function(ApprovalItem $ai) {
@@ -69,6 +71,9 @@ Route::middleware('web')->group( function() {
         $stored = $stString;
 
         }
+
+   
+    // echo \AscentCreative\Approval\FineDiff\FineDiff::renderDiffToHTMLFromOpcodes($stored, $opcodes);
 
         // echo \Mistralys\Diff\Diff::createStyler()->getStyleTag();
         // echo \Mistralys\Diff\Diff::compareStrings($stString, $incString)->toHtmlTable();
