@@ -43,9 +43,20 @@ trait ProcessesApprovalQueue {
         $payload =  $approval_item->payload;
         $payload['approval_item_id'] = $approval_item->id;
 
+        //session(['last_index'=> $_SERVER[url()->full()]);
+
         // $model->fill($payload);
 
         // dd($model);
+
+        // if there's errors in the session, this is a validation failure
+        // So, only capture the referer if it's not got errors.
+        if(!session()->has('errors')) {
+            storeReturnUrl();
+            // dump(md5(url()->current()));
+            // dump(session()->get('return_url'));
+        }
+
 
         // $payload = $model->attributes;
         $payload['approval_item_id'] = $approval_item->id;
@@ -58,6 +69,7 @@ trait ProcessesApprovalQueue {
             request()->session()->now('_old_input', $payload);
         } 
         session()->now('approval_item', $approval_item);
+
         
         $blade = $this::$bladePath . '.edit';
 
@@ -169,13 +181,20 @@ trait ProcessesApprovalQueue {
             $data['modelPlural'] = Str::pluralStudly($this->approvalModelName);
         }
 
-        $items = ApprovalItem::approvalQueue($cls)->orderBy('created_at')->paginate(25); 
+        // $items = ApprovalItem::approvalQueue($cls)->orderBy('created_at')->paginate(25); 
 
-        $columns = $this->getApprovalColumns();
+        // $fmClass = $this->dataTableClass;
 
-        session(['last_index'=> url()->full()]);
+        // $columns = $this->getApprovalColumns();
 
-        return view($this::$bladePath . '.approval', $data)->with('models', $items)->with('columns', $columns);
+        // session(['last_index'=> url()->full()]);
+
+        if(!property_exists($this, 'approvalQueueBuilder')) {
+            throw new \Exception ('approvalQueueBuilder not defined for Approval Queue on ' . get_class($this));
+        }
+
+        return view($this::$bladePath . '.approval', $data)
+                    ->with('fm', $this->approvalQueueBuilder); //->with('models', $items)->with('columns', $columns);
 
     }
   

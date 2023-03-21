@@ -142,5 +142,12 @@ class ApprovalItem extends Model {
                     ->where("is_rejected", 0)
                     ->where('approvable_type', $class);
     }
+
+    public function scopeByAction($q, $action) {
+        if(!is_array($action)) {
+            $action = [$action];
+        }
+        $q->whereIn('action', $action);
+    }
    
 }
