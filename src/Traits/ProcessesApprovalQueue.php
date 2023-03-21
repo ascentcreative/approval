@@ -135,6 +135,7 @@ trait ProcessesApprovalQueue {
 
     public function reject(Request $request, $id) {
 
+      
         Validator::make($request->all(), 
                 ['reject_reason'=>'required'],
                 ['reject_reason.required' => 'Please give your reasons for rejecting this item']
@@ -150,7 +151,7 @@ trait ProcessesApprovalQueue {
         // $model->reject();
 
 
-        return new JsonResponse(['hard'=>true, 'url'=>session('last_index')], 302);
+        return new JsonResponse(['hard'=>true, 'url'=>getReturnUrl($_SERVER['HTTP_REFERER'])], 302);
 
         // dd($request->all());
 
