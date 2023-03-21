@@ -135,29 +135,16 @@ trait ProcessesApprovalQueue {
 
     public function reject(Request $request, $id) {
 
-      
         Validator::make($request->all(), 
                 ['reject_reason'=>'required'],
                 ['reject_reason.required' => 'Please give your reasons for rejecting this item']
                 )->validate();
 
-        // $qry = $this->prepareModelQuery();
-        // $model = $qry->approvalQueue()->find($id);
-
-        // dump($id);
-
         $ai = ApprovalItem::find($id);
         $ai->reject($request->reject_reason);
-        // $model->reject();
 
 
         return new JsonResponse(['hard'=>true, 'url'=>getReturnUrl($_SERVER['HTTP_REFERER'])], 302);
-
-        // dd($request->all());
-
-        // return redirect()->to(session('last_index'));
-
-        // return 
 
     }
 
@@ -173,22 +160,12 @@ trait ProcessesApprovalQueue {
 
         $cls = ($this::$modelClass);
 
-        // $items = $cls::approvalQueue()->get();
-
         $data = $this->prepareViewData();
         
         if(isset($this->approvalModelName)) {
             $data['modelName'] = $this->approvalModelName;
             $data['modelPlural'] = Str::pluralStudly($this->approvalModelName);
         }
-
-        // $items = ApprovalItem::approvalQueue($cls)->orderBy('created_at')->paginate(25); 
-
-        // $fmClass = $this->dataTableClass;
-
-        // $columns = $this->getApprovalColumns();
-
-        // session(['last_index'=> url()->full()]);
 
         if(!property_exists($this, 'approvalQueueBuilder')) {
             throw new \Exception ('approvalQueueBuilder not defined for Approval Queue on ' . get_class($this));
