@@ -137,10 +137,13 @@ class ApprovalItem extends Model {
         
     }
 
-    public function scopeApprovalQueue($query, $class) {
-        return $query->where("is_approved", 0)
+    public function scopeApprovalQueue($query, $class, $action=null) {
+        $query->where("is_approved", 0)
                     ->where("is_rejected", 0)
                     ->where('approvable_type', $class);
+        if(!is_null($action)) {
+            $query->where('action', $action);
+        }
     }
 
     public function scopeByAction($q, $action) {
