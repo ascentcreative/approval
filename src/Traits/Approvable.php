@@ -59,31 +59,35 @@ trait Approvable {
 
             $payload = null;
 
-            if($action == 'edit' && !request()->user()->can('updateWithoutApproval', get_class($model))) {
-                $payload = $model->approval_detect_changes();
-            }
+            if(!app()->runningInConsole()) {
+                if($action == 'edit' && !request()->user()->can('updateWithoutApproval', get_class($model))) {
+                    $payload = $model->approval_detect_changes();
+                }
 
-            if($action == 'create' && !request()->user()->can('createWithoutApproval', get_class($model))) {
-                $payload = $model->attributes;
-            }
+                if($action == 'create' && !request()->user()->can('createWithoutApproval', get_class($model))) {
+                    $payload = $model->attributes;
+                }
+            
 
         
-            if(!is_null($payload) && count($payload) != 0) {
-                $model->needsApproval = true;
-            } else {
-                // dd('No changes made');
+                if(!is_null($payload) && count($payload) != 0) {
+                    $model->needsApproval = true;
+                } else {
+                    // dd('No changes made');
+                }
+    
+                // set up a new approval item with the incoming data
+                // in case we need it. It's not saved yet...
+                $model->_ai = new ApprovalItem();
+                $model->_ai->fill([
+                    'approvable_type' => get_class($model),
+                    'approvable_id' => $model->id,
+                    'author_id' => auth()->user()->id,
+                    'payload' => $payload, 
+                    'action' => $action,
+                ]);
+
             }
-  
-            // set up a new approval item with the incoming data
-            // in case we need it. It's not saved yet...
-            $model->_ai = new ApprovalItem();
-            $model->_ai->fill([
-                'approvable_type' => get_class($model),
-                'approvable_id' => $model->id,
-                'author_id' => auth()->user()->id,
-                'payload' => $payload, 
-                'action' => $action,
-            ]);
 
             if($model->wasRecentlyApproved) {
                 $model->is_approved = 1;
@@ -98,7 +102,7 @@ trait Approvable {
 
         static::creating(function($model) {
 
-            if(request()->user()->can('createWithoutApproval', get_class($model))) {
+            if(app()->runningInConsole() || request()->user()->can('createWithoutApproval', get_class($model))) {
                 // setting this to indicate the model was approved / allowed, 
                 // even though there may not have been an approval loop. 
                 // (Might rethink this)
