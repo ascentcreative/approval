@@ -61,9 +61,9 @@ trait ProcessesApprovalQueue {
         // $payload = $model->attributes;
         $payload['approval_item_id'] = $approval_item->id;
        
-
-        // dd($payload);
         
+        // setting _old_input on the session means that the form fields will display
+        // the values from the approval record in place of those from the saved model.
         if(session()->get('_old_input') === null) {
             // flash the payload to the session for this request only (now())
             request()->session()->now('_old_input', $payload);
