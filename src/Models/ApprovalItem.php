@@ -156,5 +156,10 @@ class ApprovalItem extends Model {
         }
         $q->whereIn('action', $action);
     }
+
+    public function scopeOpen($q) {
+        $q->where('is_approved', 0)
+            ->where('is_rejected', 0);
+    }
    
 }

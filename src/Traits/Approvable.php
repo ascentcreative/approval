@@ -155,6 +155,11 @@ trait Approvable {
         return $this->morphMany(ApprovalItem::class, 'approvable');
     }
 
+    public function open_approval_items() {
+        return $this->approval_items()
+                ->open();
+    }
+
     public function hasUnapprovedEdits() {
         return $this->approval_items()
                     ->where('action', 'edit')
