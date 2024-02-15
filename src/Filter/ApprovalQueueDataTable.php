@@ -6,6 +6,8 @@ use AscentCreative\Filter\DataTable\Column;
 
 use AscentCreative\Approval\Models\ApprovalItem;
 
+use Illuminate\Support\Facades\DB;
+
 
 class ApprovalQueueDataTable extends DataTableBuilder {
 
@@ -19,16 +21,27 @@ class ApprovalQueueDataTable extends DataTableBuilder {
         parent::boot();
 
         $this->setFilterWrapper('');
-
-        
-
-        $this->registerFilter('action', 'byAction');
     
     }
 
 
     public function columns() : array {
 
+        $actions = [];
+        try {
+            $actions =  DB::table('approval_queue')
+            ->select('action_label')
+            ->distinct()
+            ->get()
+            ->mapWithKeys(function($item){
+                return [$item->action_label => $item->action_label];
+            });
+
+        } catch(\Exception $e) {
+
+        }
+      
+       
         return [
 
             Column::make("Submitted")
@@ -38,8 +51,10 @@ class ApprovalQueueDataTable extends DataTableBuilder {
             Column::make('Action')
                 ->width('100px')
                 ->valueBlade('approval::queue.action-badge')
-                ->filterScope('byAction')
-                ->filterBlade("filter::ui.filters.checkboxes", ['create'=>'Create', 'edit'=>'Edit']),
+                ->filterScope('byActionLabel')
+                ->filterBlade("filter::ui.filters.checkboxes", 
+                            $actions
+                        ),
 
 
         //     Column::make('Name')
@@ -74,7 +89,7 @@ class ApprovalQueueDataTable extends DataTableBuilder {
 
         ];
 
-
+  
     }
 
     public function buildQuery() {

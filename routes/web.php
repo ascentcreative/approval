@@ -72,6 +72,13 @@ Route::middleware('web')->group( function() {
 
         }
 
+        // if(is_array($incoming)) {
+        //     $incoming = join(', ', $incoming);
+        // }
+
+        // if(is_array($stored)) {
+        //     $stored = join(', ', $stored);
+        // }
    
     // echo \AscentCreative\Approval\FineDiff\FineDiff::renderDiffToHTMLFromOpcodes($stored, $opcodes);
 

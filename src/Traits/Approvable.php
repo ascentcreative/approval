@@ -23,6 +23,8 @@ trait Approvable {
     public $needsApproval = false;
     public $approvalAction = '';
 
+    public $approvalActionLabel = null;
+
     // public $approval_track = [];
     // public $approval_ignore = [];
 
@@ -67,8 +69,6 @@ trait Approvable {
                 if($action == 'create' && !request()->user()->can('createWithoutApproval', get_class($model))) {
                     $payload = $model->attributes;
                 }
-            
-
         
                 if(!is_null($payload) && count($payload) != 0) {
                     $model->needsApproval = true;
@@ -85,6 +85,7 @@ trait Approvable {
                     'author_id' => auth()->user()->id,
                     'payload' => $payload, 
                     'action' => $action,
+                    'action_label' => $model->approvalActionLabel ?? ucfirst($action),
                 ]);
 
             }
@@ -149,7 +150,10 @@ trait Approvable {
         
     }
 
-
+    public function setApprovalActionLabel($label) {
+        $this->approvalActionLabel = $label;
+        return $this;
+    }
 
     public function approval_items() {
         return $this->morphMany(ApprovalItem::class, 'approvable');

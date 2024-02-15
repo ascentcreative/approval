@@ -1,1 +1,1 @@
-<div class="badge badge-secondary">{{ ucfirst($item->action) }}</div>
+<div class="badge badge-secondary">{{ ucfirst($item->action_label) }}</div>

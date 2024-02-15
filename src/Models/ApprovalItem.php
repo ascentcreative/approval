@@ -21,7 +21,7 @@ class ApprovalItem extends Model {
 
     public $table = "approval_queue";
 
-    public $fillable = ['approvable_type', 'approvable_id', 'author_id', 'payload', 'action', 'is_approved', 'approved_at', 'approved_by', 'is_rejected', 'rejected_at', 'rejected_by'];
+    public $fillable = ['approvable_type', 'approvable_id', 'author_id', 'payload', 'action', 'action_label', 'is_approved', 'approved_at', 'approved_by', 'is_rejected', 'rejected_at', 'rejected_by'];
 
     public $casts = [
         'payload' => 'array',
@@ -156,6 +156,15 @@ class ApprovalItem extends Model {
         }
         $q->whereIn('action', $action);
     }
+
+
+    public function scopeByActionLabel($q, $action) {
+        if(!is_array($action)) {
+            $action = [$action];
+        }
+        $q->whereIn('action_label', $action);
+    }
+
 
     public function scopeOpen($q) {
         $q->where('is_approved', 0)
