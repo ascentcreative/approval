@@ -37,9 +37,9 @@ trait Approvable {
 
             $query->where('is_approved', 1)->where('is_rejected', 0);
 
-            $query->whereDoesntHave('approval_items', function($q) {
-                $q->where('is_approved', 0)->where('action', 'create');
-            });
+            // $query->whereDoesntHave('approval_items', function($q) {
+            //     $q->where('is_approved', 0)->where('action', 'create');
+            // });
 
         });
 
