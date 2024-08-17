@@ -214,6 +214,11 @@ trait Approvable {
 
         $this->wasRecentlyRejected = true;
 
+        activity()
+            ->performedOn($this)
+            ->event('rejected')
+            ->log('rejected');
+
     }
 
 
