@@ -146,6 +146,13 @@ trait Approvable {
 
             }
 
+            if($model->wasRecentlyApproved) {
+                activity()
+                    ->performedOn($model)
+                    ->event('approved')
+                    ->log('approved');
+            }
+
         });
         
     }
