@@ -23,10 +23,10 @@ class AddActionLabel extends Migration
 
         DB::update(
 
-            DB::Raw("update approval_queue set action_label = 
+            "update approval_queue set action_label = 
 
             CONCAT(UCASE(LEFT(action, 1)), 
-                             SUBSTRING(action, 2))")
+                             SUBSTRING(action, 2))"
 
         );
 
@@ -43,4 +43,5 @@ class AddActionLabel extends Migration
             $table->dropColumn('action_label');
         });
     }
+    
 }
