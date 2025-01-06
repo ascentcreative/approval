@@ -56,37 +56,6 @@ class ApprovalQueueDataTable extends DataTableBuilder {
                             $actions
                         ),
 
-
-        //     Column::make('Name')
-        //         ->width('minmax(200px, 1fr)')
-        //         ->valueProperty('lastFirst')
-        //         ->filterScope('byName')
-        //         ->filterBlade('filter::ui.filters.text')
-        //         ->link(function($item) {
-        //             return route('portal.contacts.show', ['contact'=>$item]);
-        //         })
-        //         ->sortScope('sortByName'),
-
-        //     Column::make('Email')
-        //         // ->width('2fr')
-        //         ->valueProperty('email')
-        //         ->filterable(true)
-        //         ->copyable()
-        //         ->sortable(),
-
-        //     Column::make("Catalogues")
-        //         ->width('175px')
-        //         ->valueBlade('portal.contacts.index.catalogues')
-        //         ->filterScope('byActiveCatalogue')
-        //         ->filterBlade('filter::ui.filters.checkboxes', \App\Models\Catalogue::earnsIncome()->get()->keyBy('id')->transform(function ($item) { return $item->title; })),
-
-        //     Column::make('Works Owned')
-        //         ->width('minmax(10px, 150px)')
-        //         ->value(function($item) { 
-        //             return $item->works_count;
-        //         })
-        //         ->align('center'),
-
         ];
 
   
