@@ -62,7 +62,7 @@ trait Approvable {
             $payload = null;
 
             if(!app()->runningInConsole()) {
-                if($action == 'edit' && !request()->user()->can('updateWithoutApproval', get_class($model))) {
+                if($action == 'edit' && !request()->user()->can('updateWithoutApproval', $model)) {
                     $payload = $model->approval_detect_changes();
                 }
 
