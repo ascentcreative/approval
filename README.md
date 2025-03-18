@@ -10,9 +10,10 @@
 </ul>
 
 ## Setting up approvals
-Add the `AscentCreative\Approval\Traits\Approvable` trait to your model
+ - Add the `AscentCreative\Approval\Traits\Approvable` trait to your model
    
-        Use a migration to add approval columns to your table:
+ - Use a migration to add approval columns to your table:
+
 ```
         public function up(Blueprint $table) {
             ...
