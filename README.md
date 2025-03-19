@@ -6,7 +6,8 @@ This package allows for the creation of approvals processes which prevent newly 
  - Laravel 11+
  - ascentcreative/cms
  - ascentcreative/forms
- 
+ - ascentcreative/filter
+
 
 ## Setting up approvals
  - Run migrations to create the `approval_queue` table.
@@ -23,11 +24,22 @@ This package allows for the creation of approvals processes which prevent newly 
     }
 ``` 
 
+ - Use Policies to govern whether users CanCreateWithoutApproval or CanUpdateWithoutApoproval
+
+
  - Create the necessary routes for the approval cycle (usually within the `/admin` prefix)
 
  ```
     Route::approval('path', Model::class);
  ```
 
+  - Build Admin controller by adding `ProcessesApprovalQueue` trait to a subclass of `AscentCreative\CMS\Controllers\AdminBaseController`
+    - Specify the `AscentCreative\Filter\DataTableBuilder` to use for the approval queue view with
+    ```
+     public $approvalQueueBuilder = \App\Filter\Admin\ApprovalQueueDataTable::class;
+    ```
+
   - (Optional) Implement event listeners for `AscentCreative\Approval\Events\ItemApproved` for tasks like sending emails when items are approved and go live.
+
+
 
